@@ -6,6 +6,7 @@ import android.util.Log;
 import com.tencent.mm.opensdk.modelbase.BaseResp;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
 import com.tencent.mm.opensdk.openapi.WXAPIFactory;
+import com.yxr.wechat.callback.DefaultWxCallBack;
 import com.yxr.wechat.callback.WXCallBack;
 import java.util.HashMap;
 import java.util.Map;
@@ -103,6 +104,13 @@ public class WXManager {
         if (wxCallBack != null && wxAction) {
             setAction(false);
             wxCallBack.onBackSelf();
+        }
+    }
+
+    public void callbackTagLoading() {
+        WXCallBack callBack = wxCallBackMap.get(currTag);;
+        if (callBack != null && callBack instanceof DefaultWxCallBack){
+            ((DefaultWxCallBack) callBack).onLoading();
         }
     }
 

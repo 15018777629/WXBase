@@ -10,6 +10,7 @@ import com.tencent.mm.opensdk.modelmsg.WXTextObject;
 import com.tencent.mm.opensdk.modelmsg.WXVideoObject;
 import com.tencent.mm.opensdk.modelmsg.WXWebpageObject;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
+import com.yxr.wechat.callback.DefaultWxCallBack;
 import com.yxr.wechat.callback.FileCallback;
 import com.yxr.wechat.callback.WXCallBack;
 import com.yxr.wechat.util.WXUtil;
@@ -57,6 +58,7 @@ public class WXShareManager {
      */
     public void shareImage(final boolean shareFriend, final String title, String imageUrl, final String tag) {
         WXManager.instance().setTypeTag(WXManager.TYPE_SHARE, tag);
+        WXManager.instance().callbackTagLoading();
         downloadImage(imageUrl, new BitmapCallBack() {
             @Override
             public void callBack(Bitmap bitmap) {
@@ -113,6 +115,7 @@ public class WXShareManager {
      */
     public void shareWebPage(final boolean shareFriend, final String title, final String content, String imageUrl, final String webUrl, final String tag) {
         WXManager.instance().setTypeTag(WXManager.TYPE_SHARE, tag);
+        WXManager.instance().callbackTagLoading();
         downloadImage(imageUrl, new BitmapCallBack() {
             @Override
             public void callBack(Bitmap bitmap) {
@@ -151,6 +154,7 @@ public class WXShareManager {
      */
     public void shareMusic(final boolean shareFriend, final String musicUrl, final String title, final String description, String iconUrl, final String tag) {
         WXManager.instance().setTypeTag(WXManager.TYPE_SHARE, tag);
+        WXManager.instance().callbackTagLoading();
         downloadImage(iconUrl, new BitmapCallBack() {
             @Override
             public void callBack(Bitmap bitmap) {
@@ -186,6 +190,7 @@ public class WXShareManager {
      */
     public void shareVideo(final boolean shareFriend, final String videoUrl, final String title, final String description, String iconUrl, final String tag) {
         WXManager.instance().setTypeTag(WXManager.TYPE_SHARE, tag);
+        WXManager.instance().callbackTagLoading();
         downloadImage(iconUrl, new BitmapCallBack() {
             @Override
             public void callBack(Bitmap bitmap) {

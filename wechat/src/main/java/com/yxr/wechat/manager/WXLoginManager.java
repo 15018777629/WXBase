@@ -38,6 +38,7 @@ public class WXLoginManager {
      * @param tag ：回调标记
      */
     public void wxLogin(String tag) {
+        WXManager.instance().callbackTagLoading();
         WXManager.instance().setTypeTag(WXManager.TYPE_LOGIN, tag);
         IWXAPI api = WXManager.instance().getWXAPI();
         if (!api.isWXAppInstalled()) {

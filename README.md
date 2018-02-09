@@ -2,7 +2,7 @@
 ## 如何使用
 ### 进行依赖
 ```java
-compile 'com.yxr.wxbase:wxbase:0.0.2'
+compile 'com.yxr.wxbase:wxbase:0.0.3'
 
 // 还需要依赖以下第三方库
 compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
@@ -70,6 +70,10 @@ private void initListener() {
         super.onDestroy();
         WXManager.instance().unregisterWXCallBackWithTag(WX_TAG);
     }
+```
+当然我们也提供了默认的回调处理，你可以只实例化而不用处理任何回调，或者只处理某个你想处理的回调方法（重写某个方法）
+```java
+WXManager.instance().registerWXCallBackWithTag(WX_TAG, new DefaultWxCallBack(activity));
 ```
 * Step4：调用相应的功能
 ```java
