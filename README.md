@@ -42,7 +42,7 @@ public void onCreate() {
     WXManager.instance().init(this, WX_APP_ID, WX_SECRET);
 }
 ```
-* Step3：注册监听和OnResume()处理用户没有按照正常流程返回APP
+* Step3：注册监听和重写OnResume()处理用户没有按照正常流程返回APP的事件
 ```java
 private void initListener() {
     WXManager.instance().registerWXCallBackWithTag(WX_TAG, new WXCallBack() {
