@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.novoda.bintray-release'
 
 android {
     compileSdkVersion 26
@@ -33,22 +32,6 @@ task javadoc(type: Javadoc) {
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
     options.encoding = "UTF-8"
 }
-
-publish {
-    userOrg = 'yxr2222222'               // bintray注册的用户名
-    groupId = 'com.yxr.wxbase'
-    artifactId = 'wxbase'                // bintray创建的package
-    publishVersion = '0.0.2'
-}
-
-//task makeJar(type: Copy) {
-//    delete 'build/libs/wechat.jar' //删除已经存在的jar包
-//    from('build/intermediates/bundles/release/')//从该目录下加载要打包的文件
-//    into('build/libs/')//jar包的保存目录
-//    include('classes.jar')//设置过滤，只打包classes文件
-//    rename('classes.jar', 'wechat.jar')//重命名，wechat.jar 根据自己的需求设置
-//}
-//makeJar.dependsOn(build)
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
