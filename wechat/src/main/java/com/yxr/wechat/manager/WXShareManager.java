@@ -1,10 +1,7 @@
 package com.yxr.wechat.manager;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 
-import com.lzy.okgo.callback.FileCallback;
-import com.lzy.okgo.model.Response;
 import com.tencent.mm.opensdk.modelmsg.SendMessageToWX;
 import com.tencent.mm.opensdk.modelmsg.WXImageObject;
 import com.tencent.mm.opensdk.modelmsg.WXMediaMessage;
@@ -13,10 +10,9 @@ import com.tencent.mm.opensdk.modelmsg.WXTextObject;
 import com.tencent.mm.opensdk.modelmsg.WXVideoObject;
 import com.tencent.mm.opensdk.modelmsg.WXWebpageObject;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
+import com.yxr.wechat.callback.FileCallback;
 import com.yxr.wechat.callback.WXCallBack;
 import com.yxr.wechat.util.WXUtil;
-
-import java.io.File;
 
 /**
  * 微信分享管理
@@ -234,22 +230,16 @@ public class WXShareManager {
     }
 
     private void downloadImage(String imageUrl, final BitmapCallBack callBack) {
-        WXUtil.simpleDownloadFile(imageUrl, new FileCallback() {
+        WXUtil.simpleDownloadFile(imageUrl,"share.jpg", new FileCallback() {
             @Override
-            public void onSuccess(Response<File> response) {
-                File file = response.body();
-                if (file == null || !file.exists()) {
-                    WXManager.instance().callbackTagError("图片下载失败");
-                } else {
-                    if (callBack != null) {
-                        callBack.callBack(BitmapFactory.decodeFile(file.getAbsolutePath()));
-                    }
+            public void onSuccess(Bitmap bitmap) {
+                if (callBack != null) {
+                    callBack.callBack(bitmap);
                 }
             }
 
             @Override
-            public void onError(Response<File> response) {
-                super.onError(response);
+            public void onError() {
                 WXManager.instance().callbackTagError("图片下载失败");
             }
         });

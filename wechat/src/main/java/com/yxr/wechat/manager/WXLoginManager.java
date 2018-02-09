@@ -1,23 +1,21 @@
 package com.yxr.wechat.manager;
 
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.convert.StringConvert;
-import com.lzy.okgo.model.Response;
-import com.lzy.okrx2.adapter.ObservableResponse;
 import com.tencent.mm.opensdk.modelbase.BaseResp;
 import com.tencent.mm.opensdk.modelmsg.SendAuth;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
 import com.yxr.wechat.WXUserInfo;
 
 import org.json.JSONObject;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import io.reactivex.Observer;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
-import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -63,11 +61,11 @@ public class WXLoginManager {
                 WXManager.instance().getWxAppId() + "&secret=" + WXManager.instance().getWxSecret() +
                 "&code=" + respAuth.code + "&grant_type=authorization_code";
 
-        obGet(accessTokenUrl, null, new LoginCallBack() {
+        obGet(accessTokenUrl, new LoginCallBack() {
             @Override
-            public void callBack(@NonNull Response<String> response) {
+            public void callBack(String response) {
                 try {
-                    JSONObject jsonObject = new JSONObject(response.body());
+                    JSONObject jsonObject = new JSONObject(response);
                     String accessToken = jsonObject.getString("access_token");
                     String openId = jsonObject.getString("openid");
                     getWXUserInfo(accessToken, openId);
@@ -81,11 +79,11 @@ public class WXLoginManager {
 
     private void getWXUserInfo(String accessToken, String openId) {
         String url = "https://api.weixin.qq.com/sns/userinfo?access_token=" + accessToken + "&openid=" + openId;
-        obGet(url, null, new LoginCallBack() {
+        obGet(url, new LoginCallBack() {
             @Override
-            public void callBack(@NonNull Response<String> response) {
+            public void callBack(String response) {
                 try {
-                    JSONObject jsonObject = new JSONObject(response.body());
+                    JSONObject jsonObject = new JSONObject(response);
                     String nickname = jsonObject.getString("nickname");
                     String unionId = jsonObject.getString("unionid");
                     String name = new String(nickname.getBytes("ISO-8859-1"), "UTF-8");
@@ -105,35 +103,39 @@ public class WXLoginManager {
         });
     }
 
-    private void obGet(String url, Map<String, String> map, final LoginCallBack callBack) {
-        if (map == null) {
-            map = new HashMap<>();
-        }
-        OkGo.<String>get(url)
-                .params(map)
-                .converter(new StringConvert())
-                .adapt(new ObservableResponse<String>())
-                .subscribeOn(Schedulers.io())
+    private void obGet(final String getUrl, final LoginCallBack callBack) {
+        Observable.create(new ObservableOnSubscribe<String>() {
+            @Override
+            public void subscribe(@NonNull ObservableEmitter<String> emitter) throws Exception {
+                StringBuffer stringBuffer = null;
+                try {
+                    URL url = new URL(getUrl);
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("GET");
+                    conn.setConnectTimeout(10 * 1000);
+                    int code = conn.getResponseCode();
+                    if (code == 200) {
+                        InputStream inputStream = conn.getInputStream();
+                        stringBuffer = new StringBuffer();
+                        byte[] b = new byte[4096];
+                        int n;
+                        while ((n = inputStream.read(b)) != -1) {
+                            stringBuffer.append(new String(b, 0, n));
+                        }
+                        inputStream.close();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                emitter.onNext(stringBuffer == null ? null : stringBuffer.toString());
+            }
+        }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Response<String>>() {
+                .observeOn(Schedulers.io())
+                .subscribe(new Consumer<String>() {
                     @Override
-                    public void onSubscribe(@NonNull Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(@NonNull Response<String> response) {
+                    public void accept(String response) throws Exception {
                         callBack.callBack(response);
-                    }
-
-                    @Override
-                    public void onError(@NonNull Throwable e) {
-                        WXManager.instance().callbackTagError("获取用户微信信息失败");
-                    }
-
-                    @Override
-                    public void onComplete() {
-
                     }
                 });
     }
@@ -143,6 +145,6 @@ public class WXLoginManager {
     }
 
     private interface LoginCallBack {
-        void callBack(@NonNull Response<String> response);
+        void callBack(String response);
     }
 }
